@@ -1,7 +1,8 @@
 [package]
 name = "NetTERM"
-version = "0.1.0"
+version = "0.0.3"
 edition = "2024"
 
 [dependencies]
 eframe = "0.28"
+ping = "0.5"
