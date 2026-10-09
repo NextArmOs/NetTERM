@@ -20,7 +20,19 @@ fn main() -> eframe::Result<()> {
     let mut target_ip = String::from("8.8.8.8");
     let mut terminal_lines: Vec<String> = Vec::new();
 
-    eframe::run_simple_native("NetTERM v0.0.4", options, move |ctx, _frame| {
+    eframe::run_simple_native("NetTERM v0.1", options, move |ctx, _frame| {
+        let mut style = (*ctx.style()).clone();
+        let needs_update = style.text_styles.get(&egui::TextStyle::Body)
+            .map_or(true, |font| font.size != 14.5);
+
+        if needs_update {
+            style.text_styles.insert(egui::TextStyle::Heading, egui::FontId::new(18.0, egui::FontFamily::Proportional));
+            style.text_styles.insert(egui::TextStyle::Body, egui::FontId::new(14.5, egui::FontFamily::Proportional));
+            style.text_styles.insert(egui::TextStyle::Monospace, egui::FontId::new(14.5, egui::FontFamily::Monospace));
+            style.text_styles.insert(egui::TextStyle::Button, egui::FontId::new(14.5, egui::FontFamily::Proportional));
+            ctx.set_style(style);
+        }
+
         let mut visuals = egui::Visuals::dark();
         visuals.extreme_bg_color = egui::Color32::from_hex("#2e2f42").unwrap();
         visuals.panel_fill = egui::Color32::from_hex("#2e2f42").unwrap();
@@ -52,14 +64,31 @@ fn main() -> eframe::Result<()> {
                     });
                     ui.add_space(5.0);
 
+                    let available_height = ui.available_height();
+                    let font_height = 18.0; 
+                    let visible_lines = (available_height / font_height).floor() as usize;
+
                     egui::ScrollArea::vertical().show(ui, |ui| {
-                        ui.add_sized(
-                            ui.available_size(),
-                            egui::TextEdit::multiline(&mut code_text)
-                                .font(egui::TextStyle::Monospace)
-                                .code_editor()
-                                .lock_focus(true),
-                        );
+                        ui.horizontal(|ui| {
+                            ui.vertical(|ui| {
+                                for _ in 0..line_count {
+                                    ui.label(egui::RichText::new(" ").monospace());
+                                }
+                                if visible_lines > line_count {
+                                    for _ in 0..(visible_lines - line_count) {
+                                        ui.label(egui::RichText::new("~").color(egui::Color32::from_gray(80)).monospace());
+                                    }
+                                }
+                            });
+
+                            ui.add_sized(
+                                ui.available_size(),
+                                egui::TextEdit::multiline(&mut code_text)
+                                    .font(egui::TextStyle::Monospace)
+                                    .code_editor()
+                                    .lock_focus(true),
+                            );
+                        });
                     });
                 }
                 Tab::NetworkTerminal => {
