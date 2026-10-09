@@ -8,7 +8,12 @@ fn main() -> eframe::Result<()> {
 
     let mut code_text = String::new();
 
-    eframe::run_simple_native("NetTERM - Code Editor v0.0.2", options, move |ctx, _frame| {
+    eframe::run_simple_native("NetTERM - Code Editor 0.0.3", options, move |ctx, _frame| {
+        let mut visuals = egui::Visuals::dark();
+        visuals.extreme_bg_color = egui::Color32::from_hex("#2e2f42").unwrap();
+        visuals.panel_fill = egui::Color32::from_hex("#2e2f42").unwrap();
+        ctx.set_visuals(visuals);
+
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.heading("NetTERM Code Editor");
             ui.separator();
