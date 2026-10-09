@@ -20,7 +20,7 @@ fn main() -> eframe::Result<()> {
     let mut target_ip = String::from("8.8.8.8");
     let mut terminal_lines: Vec<String> = Vec::new();
 
-    eframe::run_simple_native("NetTERM v0.1", options, move |ctx, _frame| {
+    eframe::run_simple_native("NetTERM v0.0.5", options, move |ctx, _frame| {
         let mut style = (*ctx.style()).clone();
         let needs_update = style.text_styles.get(&egui::TextStyle::Body)
             .map_or(true, |font| font.size != 14.5);
