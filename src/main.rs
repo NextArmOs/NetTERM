@@ -15,7 +15,7 @@ fn main() -> eframe::Result<()> {
         ctx.set_visuals(visuals);
 
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.heading("NetTERM Code Editor");
+            ui.heading("NetTERM Code Editor 0.0.3");
             ui.separator();
 
             let line_count = if code_text.is_empty() { 
