@@ -5,4 +5,3 @@ edition = "2024"
 
 [dependencies]
 eframe = "0.28"
-sysinfo = "0.33"
