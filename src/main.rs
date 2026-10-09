@@ -2,29 +2,43 @@ use eframe::egui;
 
 fn main() -> eframe::Result<()> {
     let options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default().with_inner_size([400.0, 300.0]),
+        viewport: egui::ViewportBuilder::default().with_inner_size([700.0, 500.0]),
         ..Default::default()
     };
-    
-    let mut counter = 0;
 
-    eframe::run_simple_native("NetTERM v0.1", options, move |ctx, _frame| {
+    let mut code_text = String::new();
+
+    eframe::run_simple_native("NetTERM - Code Editor v0.0.2", options, move |ctx, _frame| {
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.heading("Welcome to NetTERM!");
+            ui.heading("NetTERM Code Editor");
             ui.separator();
 
-            ui.label(format!("You have clicked the button {} time(s).", counter));
+            let line_count = if code_text.is_empty() { 
+                1 
+            } else { 
+                code_text.lines().count() 
+            };
+            
+            let char_count = code_text.chars().count();
 
-            if ui.button("Click to increase counter").clicked() {
-                counter += 1;
-            }
+            ui.horizontal(|ui| {
+                ui.label(format!("Lines: {}", line_count));
+                ui.separator();
+                ui.label(format!("Characters: {}", char_count));
+            });
 
             ui.separator();
 
-            if ui.button("Exit Application").clicked() {
-                ctx.send_viewport_cmd(egui::ViewportCommand::Close);
-            }
+            egui::ScrollArea::vertical().show(ui, |ui| {
+                ui.add_sized(
+                    ui.available_size(),
+                    egui::TextEdit::multiline(&mut code_text)
+                        .font(egui::TextStyle::Monospace)
+                        .code_editor()
+                        .desired_rows(20)
+                        .lock_focus(true),
+                );
+            });
         });
     })
 }
-
