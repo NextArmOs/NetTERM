@@ -1,6 +1,8 @@
 mod network;
 
 use eframe::egui;
+use std::fs::File;
+use std::io::Write;
 
 #[derive(PartialEq)]
 enum Tab {
@@ -8,9 +10,35 @@ enum Tab {
     NetworkTerminal,
 }
 
+fn format_number(num: usize) -> String {
+    let s = num.to_string();
+    let mut result = String::new();
+    let chars: Vec<char> = s.chars().collect();
+    let len = chars.len();
+    
+    for (i, &ch) in chars.iter().enumerate() {
+        result.push(ch);
+        let remaining = len - 1 - i;
+        if remaining > 0 && remaining % 3 == 0 {
+            result.push(',');
+        }
+    }
+    result
+}
+
+fn format_size(bytes: usize) -> String {
+    if bytes < 1024 {
+        format!("{} B", format_number(bytes))
+    } else if bytes < 1024 * 1024 {
+        format!("{:.2} KB", bytes as f32 / 1024.0)
+    } else {
+        format!("{:.2} MB", bytes as f32 / (1024.0 * 1024.0))
+    }
+}
+
 fn main() -> eframe::Result<()> {
     let options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default().with_inner_size([700.0, 530.0]),
+        viewport: egui::ViewportBuilder::default().with_inner_size([750.0, 550.0]),
         ..Default::default()
     };
 
@@ -20,7 +48,7 @@ fn main() -> eframe::Result<()> {
     let mut target_ip = String::from("8.8.8.8");
     let mut terminal_lines: Vec<String> = Vec::new();
 
-    eframe::run_simple_native("NetTERM v0.0.5", options, move |ctx, _frame| {
+    eframe::run_simple_native("NetTERM v0.1.5", options, move |ctx, _frame| {
         let mut style = (*ctx.style()).clone();
         let needs_update = style.text_styles.get(&egui::TextStyle::Body)
             .map_or(true, |font| font.size != 14.5);
@@ -56,11 +84,26 @@ fn main() -> eframe::Result<()> {
                 Tab::CodeEditor => {
                     let line_count = if code_text.is_empty() { 1 } else { code_text.lines().count() };
                     let char_count = code_text.chars().count();
+                    let byte_size = code_text.len();
 
                     ui.horizontal(|ui| {
-                        ui.label(format!("Lines: {}", line_count));
+                        ui.label(format!("Lines: {}", format_number(line_count)));
                         ui.separator();
-                        ui.label(format!("Characters: {}", char_count));
+                        ui.label(format!("Characters: {}", format_number(char_count)));
+                        ui.separator();
+                        ui.label(format!("Size: {}", format_size(byte_size)));
+                        ui.separator();
+                        
+                        if ui.button("💾 Save File").clicked() {
+                            if let Some(path) = rfd::FileDialog::new()
+                                .set_title("Save Your Code File")
+                                .save_file() 
+                            {
+                                if let Ok(mut file) = File::create(path) {
+                                    let _ = file.write_all(code_text.as_bytes());
+                                }
+                            }
+                        }
                     });
                     ui.add_space(5.0);
 
