@@ -2,7 +2,7 @@ mod network;
 
 use eframe::egui;
 use std::fs::File;
-use std::io::Write;
+use std::io::{Read, Write};
 
 #[derive(PartialEq)]
 enum Tab {
@@ -48,7 +48,7 @@ fn main() -> eframe::Result<()> {
     let mut target_ip = String::from("8.8.8.8");
     let mut terminal_lines: Vec<String> = Vec::new();
 
-    eframe::run_simple_native("NetTERM v0.1.5", options, move |ctx, _frame| {
+    eframe::run_simple_native("NetTERM v0.2.0", options, move |ctx, _frame| {
         let mut style = (*ctx.style()).clone();
         let needs_update = style.text_styles.get(&egui::TextStyle::Body)
             .map_or(true, |font| font.size != 14.5);
@@ -94,6 +94,20 @@ fn main() -> eframe::Result<()> {
                         ui.label(format!("Size: {}", format_size(byte_size)));
                         ui.separator();
                         
+                        if ui.button("📂 Open File").clicked() {
+                            if let Some(path) = rfd::FileDialog::new()
+                                .set_title("Open Code File")
+                                .pick_file() 
+                            {
+                                if let Ok(mut file) = File::open(path) {
+                                    let mut contents = String::new();
+                                    if file.read_to_string(&mut contents).is_ok() {
+                                        code_text = contents;
+                                    }
+                                }
+                            }
+                        }
+
                         if ui.button("💾 Save File").clicked() {
                             if let Some(path) = rfd::FileDialog::new()
                                 .set_title("Save Your Code File")
@@ -103,6 +117,10 @@ fn main() -> eframe::Result<()> {
                                     let _ = file.write_all(code_text.as_bytes());
                                 }
                             }
+                        }
+
+                        if ui.button("🗑️ Clear").clicked() {
+                            code_text.clear();
                         }
                     });
                     ui.add_space(5.0);
