@@ -8,6 +8,8 @@ use std::io::{Read, Write};
 enum Tab {
     CodeEditor,
     NetworkTerminal,
+    Canvas,
+    Fetch,
 }
 
 fn format_number(num: usize) -> String {
@@ -38,7 +40,7 @@ fn format_size(bytes: usize) -> String {
 
 fn main() -> eframe::Result<()> {
     let options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default().with_inner_size([750.0, 550.0]),
+        viewport: egui::ViewportBuilder::default().with_inner_size([800.0, 600.0]),
         ..Default::default()
     };
 
@@ -47,8 +49,11 @@ fn main() -> eframe::Result<()> {
     
     let mut target_ip = String::from("8.8.8.8");
     let mut terminal_lines: Vec<String> = Vec::new();
+    
+    let mut paint_lines: Vec<Vec<egui::Pos2>> = Vec::new();
+    let mut fetch_output = String::from("Click 'Run Fetch' to load system information.");
 
-    eframe::run_simple_native("NetTERM v0.2.0", options, move |ctx, _frame| {
+    eframe::run_simple_native("NetTERM v0.3.0", options, move |ctx, _frame| {
         let mut style = (*ctx.style()).clone();
         let needs_update = style.text_styles.get(&egui::TextStyle::Body)
             .map_or(true, |font| font.size != 14.5);
@@ -74,6 +79,8 @@ fn main() -> eframe::Result<()> {
                 ui.horizontal(|ui| {
                     ui.selectable_value(&mut current_tab, Tab::CodeEditor, "📝 Code Editor");
                     ui.selectable_value(&mut current_tab, Tab::NetworkTerminal, "🌐 Network Terminal");
+                    ui.selectable_value(&mut current_tab, Tab::Canvas, "🎨 Paint");
+                    ui.selectable_value(&mut current_tab, Tab::Fetch, "💻 Fetch");
                 });
                 ui.add_space(5.0);
                 ui.separator();
@@ -175,6 +182,63 @@ fn main() -> eframe::Result<()> {
                         ui.vertical(|ui| {
                             for line in &terminal_lines {
                                 ui.label(egui::RichText::new(line).monospace());
+                            }
+                        });
+                    });
+                }
+                Tab::Canvas => {
+                    ui.horizontal(|ui| {
+                        ui.heading("Paint Area");
+                        if ui.button("Clear").clicked() {
+                            paint_lines.clear();
+                        }
+                    });
+                    ui.add_space(5.0);
+                    ui.label("Hold left mouse button to draw inside the window:");
+                    ui.separator();
+
+                    let (response, painter) = ui.allocate_painter(ui.available_size(), egui::Sense::drag());
+                    
+                    if let Some(pointer_pos) = response.interact_pointer_pos() {
+                        if response.dragged_by(egui::PointerButton::Primary) {
+                            if response.drag_started_by(egui::PointerButton::Primary) {
+                                paint_lines.push(vec![pointer_pos]);
+                            } else if let Some(last_line) = paint_lines.last_mut() {
+                                if last_line.last() != Some(&pointer_pos) {
+                                    last_line.push(pointer_pos);
+                                }
+                            }
+                        }
+                    }
+
+                    let stroke = egui::Stroke::new(2.5, egui::Color32::LIGHT_BLUE);
+                    for line in &paint_lines {
+                        if line.len() >= 2 {
+                            painter.add(egui::Shape::line(line.clone(), stroke));
+                        }
+                    }
+                }
+                Tab::Fetch => {
+                    ui.horizontal(|ui| {
+                        ui.heading("System Information Fetch");
+                        if ui.button("Run Fetch").clicked() {
+                            fetch_output = network::get_fastfetch_output();
+                        }
+                    });
+                    ui.add_space(10.0);
+                    ui.separator();
+                    ui.add_space(5.0);
+
+                    egui::ScrollArea::both().show(ui, |ui| {
+                        ui.vertical(|ui| {
+                            for line in fetch_output.lines() {
+                                if line.contains("OS:") || line.contains("Kernel:") || line.contains("WM:") || line.contains("Uptime:") {
+                                    ui.label(egui::RichText::new(line).monospace().color(egui::Color32::LIGHT_GREEN));
+                                } else if line.contains("Memory:") || line.contains("CPU:") || line.contains("GPU:") {
+                                    ui.label(egui::RichText::new(line).monospace().color(egui::Color32::LIGHT_BLUE));
+                                } else {
+                                    ui.label(egui::RichText::new(line).monospace());
+                                }
                             }
                         });
                     });
