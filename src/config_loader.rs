@@ -24,3 +24,9 @@ pub fn load_config() -> AppConfig {
     }
     AppConfig::default()
 }
+
+pub fn save_config(config: &AppConfig) {
+    if let Ok(content) = toml::to_string(config) {
+        let _ = fs::write("app_config.toml", content);
+    }
+}
