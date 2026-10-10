@@ -1,29 +1,38 @@
 use eframe::egui;
 
-pub fn highlight_rust_code(ctx: &egui::Context, code: &str) -> egui::text::LayoutJob {
+pub fn highlight_code(ctx: &egui::Context, code: &str, lang: &str) -> egui::text::LayoutJob {
     let mut job = egui::text::LayoutJob::default();
     let font_id = egui::FontId::new(14.5, egui::FontFamily::Monospace);
-    
-    let keywords = [
-        "fn", "let", "mut", "match", "struct", "enum", "pub", "use", "mod", 
-        "true", "false", "impl", "return", "if", "else", "for", "in", "while", 
-        "loop", "break", "continue", "as", "async", "await", "const", "static", 
-        "type", "where", "trait", "dyn", "unsafe", "move", "crate", "self", "Self"
-    ];
+    let base_color = egui::Color32::from_hex("#e4e1e9").unwrap();
 
-    let types = [
-        "i8", "i16", "i32", "i64", "i128", "isize",
-        "u8", "u16", "u32", "u64", "u128", "usize",
-        "f32", "f64", "bool", "char", "str", "String", "Vec", "Option", "Result"
-    ];
-    
+    if lang == "Plain (White)" {
+        job.append(code, 0.0, egui::TextFormat { font_id, color: base_color, ..Default::default() });
+        return job;
+    }
+
+    let keywords = match lang {
+        "Rust" => vec![
+            "fn", "let", "mut", "match", "struct", "enum", "pub", "use", "mod", 
+            "true", "false", "impl", "return", "if", "else", "for", "in", "while"
+        ],
+        "Python" => vec![
+            "def", "import", "from", "as", "return", "if", "elif", "else", 
+            "for", "while", "in", "is", "not", "and", "or", "True", "False", "pass"
+        ],
+        "C++" => vec![
+            "int", "char", "float", "double", "void", "if", "else", "for", "while",
+            "switch", "case", "return", "class", "public", "private", "namespace", "include"
+        ],
+        _ => vec![],
+    };
+
     let mut current_word = String::new();
     let mut in_string = false;
 
     for ch in code.chars() {
         if in_string {
             current_word.push(ch);
-            if ch == '"' {
+            if ch == '"' || ch == '\'' {
                 in_string = false;
                 job.append(&current_word, 0.0, egui::TextFormat {
                     font_id: font_id.clone(),
@@ -32,9 +41,9 @@ pub fn highlight_rust_code(ctx: &egui::Context, code: &str) -> egui::text::Layou
                 });
                 current_word.clear();
             }
-        } else if ch == '"' {
+        } else if ch == '"' || ch == '\'' {
             if !current_word.is_empty() {
-                job.append(&current_word, 0.0, egui::TextFormat { font_id: font_id.clone(), color: egui::Color32::from_hex("#e4e1e9").unwrap(), ..Default::default() });
+                job.append(&current_word, 0.0, egui::TextFormat { font_id: font_id.clone(), color: base_color, ..Default::default() });
                 current_word.clear();
             }
             in_string = true;
@@ -45,14 +54,11 @@ pub fn highlight_rust_code(ctx: &egui::Context, code: &str) -> egui::text::Layou
             if !current_word.is_empty() {
                 let color = if keywords.contains(&current_word.as_str()) {
                     egui::Color32::from_hex("#ff757f").unwrap()
-                } else if types.contains(&current_word.as_str()) {
-                    egui::Color32::from_hex("#4fd6be").unwrap()
                 } else if current_word.chars().next().unwrap().is_numeric() {
                     egui::Color32::from_hex("#ff966c").unwrap()
                 } else {
-                    egui::Color32::from_hex("#e4e1e9").unwrap()
+                    base_color
                 };
-                
                 job.append(&current_word, 0.0, egui::TextFormat { font_id: font_id.clone(), color, ..Default::default() });
                 current_word.clear();
             }
@@ -65,10 +71,8 @@ pub fn highlight_rust_code(ctx: &egui::Context, code: &str) -> egui::text::Layou
             job.append(&symbol_str, 0.0, egui::TextFormat { font_id: font_id.clone(), color: symbol_color, ..Default::default() });
         }
     }
-    
     if !current_word.is_empty() {
-        job.append(&current_word, 0.0, egui::TextFormat { font_id: font_id.clone(), color: egui::Color32::from_hex("#e4e1e9").unwrap(), ..Default::default() });
+        job.append(&current_word, 0.0, egui::TextFormat { font_id: font_id.clone(), color: base_color, ..Default::default() });
     }
-    
     job
 }
