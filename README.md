@@ -1,6 +1,6 @@
 NetTERM
 
-A fast, lightweight, and modern **Code Editor** and **Network Utility Terminal** written in pure Rust using the **egui** native graphical engine. Perfectly optimized for Linux window managers like Hyprland and Niri
+A fast, lightweight, and modern **Code Editor** and **Network Utility Terminal** **With its own PKGS** written in pure Rust using the **egui** native graphical engine. Perfectly optimized for Linux window managers like Hyprland and Niri
 
 FEATURES
 - **Real-time counter for Lines**, Characters, and dynamic file size conversion (Bytes / KB / MB).
@@ -35,3 +35,5 @@ Track the development progress of NetTERM. You can check the boxes below as mile
   -  :ping <target_ip>      ->  Execute a live network ICMP diagnostic query
   -  :settings or :config   ->  Open settings
   -  :help                  ->  Display this list
+
+
