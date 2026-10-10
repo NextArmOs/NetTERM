@@ -34,7 +34,7 @@ pub fn highlight_rust_code(ctx: &egui::Context, code: &str) -> egui::text::Layou
             }
         } else if ch == '"' {
             if !current_word.is_empty() {
-                job.append(&current_word, 0.0, egui::TextFormat { font_id: font_id.clone(), color: ctx.style().visuals.text_color(), ..Default::default() });
+                job.append(&current_word, 0.0, egui::TextFormat { font_id: font_id.clone(), color: egui::Color32::from_hex("#e4e1e9").unwrap(), ..Default::default() });
                 current_word.clear();
             }
             in_string = true;
@@ -50,7 +50,7 @@ pub fn highlight_rust_code(ctx: &egui::Context, code: &str) -> egui::text::Layou
                 } else if current_word.chars().next().unwrap().is_numeric() {
                     egui::Color32::from_hex("#ff966c").unwrap()
                 } else {
-                    ctx.style().visuals.text_color()
+                    egui::Color32::from_hex("#e4e1e9").unwrap()
                 };
                 
                 job.append(&current_word, 0.0, egui::TextFormat { font_id: font_id.clone(), color, ..Default::default() });
@@ -67,9 +67,8 @@ pub fn highlight_rust_code(ctx: &egui::Context, code: &str) -> egui::text::Layou
     }
     
     if !current_word.is_empty() {
-        job.append(&current_word, 0.0, egui::TextFormat { font_id: font_id.clone(), color: ctx.style().visuals.text_color(), ..Default::default() });
+        job.append(&current_word, 0.0, egui::TextFormat { font_id: font_id.clone(), color: egui::Color32::from_hex("#e4e1e9").unwrap(), ..Default::default() });
     }
     
     job
 }
-
