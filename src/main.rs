@@ -1,7 +1,8 @@
 mod network;
 mod highlighter;
 mod calculator;
-mod panels;
+mod nettermpkgs;
+mod netterm_pkgs;
 
 use eframe::egui;
 
@@ -14,6 +15,7 @@ pub enum Tab {
     Calculator,
     Settings,
     Help,
+    Packages,
 }
 
 pub struct PaintLine {
@@ -62,7 +64,7 @@ fn main() -> eframe::Result<()> {
     let mut active_syntax_lang = String::from("Rust");
     let mut session_plain_color = String::from("#e4e1e9");
 
-    eframe::run_simple_native("NetTERM v0.5.0", options, move |ctx, _frame| {
+    eframe::run_simple_native("NetTERM v0.6.0", options, move |ctx, _frame| {
         ctx.request_repaint_after(std::time::Duration::from_secs(1));
 
         let current_lang = active_syntax_lang.clone();
@@ -89,7 +91,7 @@ fn main() -> eframe::Result<()> {
             ui.add_space(4.0);
             ui.horizontal(|ui| {
                 ui.colored_label(egui::Color32::from_hex("#ff757f").unwrap(), egui::RichText::new("❯").font(egui::FontId::new(16.0, egui::FontFamily::Proportional)));
-                let prompt = ui.add_sized([ui.available_width() - 350.0, 24.0], egui::TextEdit::singleline(&mut command_buffer).font(egui::TextStyle::Monospace).hint_text("Type command (e.g. :editor, :lang py, :calc 2+2) ..."));
+                let prompt = ui.add_sized([ui.available_width() - 350.0, 24.0], egui::TextEdit::singleline(&mut command_buffer).font(egui::TextStyle::Monospace).hint_text("Type command ... "));
                 ui.separator();
                 ui.label(egui::RichText::new(&command_feedback).small().color(egui::Color32::from_gray(140)));
 
@@ -106,6 +108,7 @@ fn main() -> eframe::Result<()> {
                             ":help" => { current_tab = Tab::Help; command_feedback = "Displaying command help summary.".to_string(); }
                             ":calculator" => { current_tab = Tab::Calculator; command_feedback = "Opened full screen calculator view.".to_string(); }
                             ":fetch" => { current_tab = Tab::Fetch; fetch_output = network::get_fastfetch_output(); command_feedback = "Executed system fetch.".to_string(); }
+                            ":netpkgs" | ":pkgs" => { current_tab = Tab::Packages; command_feedback = "Opened NetTERM_PKGS Package Repository Manager.".to_string(); }
                             ":q" | ":exit" => { ctx.send_viewport_cmd(egui::ViewportCommand::Close); }
                             ":ping" => {
                                 current_tab = Tab::NetworkTerminal;
@@ -137,7 +140,7 @@ fn main() -> eframe::Result<()> {
                                         "python" | "py" => { active_syntax_lang = "Python".to_string(); command_feedback = "Syntax set to Python".to_string(); }
                                         "cpp" | "c++" | "cc" => { active_syntax_lang = "C++".to_string(); command_feedback = "Syntax set to C++".to_string(); }
                                         "plain" | "txt" | "text" => { active_syntax_lang = "Plain Text".to_string(); command_feedback = "Syntax highlighting disabled".to_string(); }
-                                        _ => { command_feedback = format!("Unknown lang: '{}'", parts[1]); }
+                                        _ => { command_feedback = format!("Unknown lang profile: '{}'", parts[1]); }
                                     }
                                     ctx.request_repaint();
                                 } else {
@@ -157,7 +160,7 @@ fn main() -> eframe::Result<()> {
             .frame(egui::Frame::none().fill(final_color))
             .show(ctx, |ui| {
                 match current_tab {
-                    Tab::CodeEditor => panels::editor::show(
+                    Tab::CodeEditor => nettermpkgs::editor::show(
                         ui, 
                         ctx, 
                         &mut code_text, 
@@ -166,22 +169,25 @@ fn main() -> eframe::Result<()> {
                         format_number as fn(usize) -> String, 
                         format_size as fn(usize) -> String
                     ),
-                    Tab::NetworkTerminal => panels::terminal::show(ui, &terminal_lines),
-                    Tab::Canvas => panels::canvas::show(ui, &mut paint_lines, &mut current_brush_color),
-                    Tab::Fetch => panels::fetch::show(ui, &fetch_output),
+                    Tab::NetworkTerminal => nettermpkgs::terminal::show(ui, &terminal_lines),
+                    Tab::Canvas => nettermpkgs::canvas::show(ui, &mut paint_lines, &mut current_brush_color),
+                    Tab::Fetch => nettermpkgs::fetch::show(ui, &fetch_output),
                     Tab::Calculator => {
                         let mut evaluate_clicked = false;
-                        panels::calculator::show(ui, &mut calc_input, &calc_result, &mut evaluate_clicked);
+                        nettermpkgs::calculator::show(ui, &mut calc_input, &calc_result, &mut evaluate_clicked);
                         if evaluate_clicked {
-                            calc_result = match calculator::evaluate_expression(&calc_input) {
-                                Ok(res_str) => res_str,
-                                Err(err) => format!("Error: {}", err),
-                            };
-                        }
-                    }
-                    Tab::Settings => panels::settings::show(ui, ctx, &mut active_syntax_lang, &mut session_plain_color),
-                    Tab::Help => panels::help::show(ui),
-                }
-            });
-    })
+                    calc_result = match calculator::evaluate_expression(&calc_input) {
+                    Ok(res_str) => res_str,
+                    Err(err) => format!("Error: {}", err),
+            };
+        }
+    }
+            Tab::Settings => nettermpkgs::settings::show(ui, ctx, &mut active_syntax_lang, &mut session_plain_color),
+            Tab::Help => nettermpkgs::help::show(ui),
+            Tab::Packages => netterm_pkgs::show(ui),
+       }
+      }
+    );
+  }
+ )
 }
