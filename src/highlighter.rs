@@ -74,11 +74,11 @@ pub fn highlight_code(ctx: &egui::Context, code: &str, lang: &str, plain_color_h
         } else {
             if !current_word.is_empty() {
                 let color = if control_flow.contains(&current_word.as_str()) {
-                    egui::Color32::from_hex("#aa75ad").unwrap() // Purple for loops & control flow
+                    egui::Color32::from_hex("#aa75ad").unwrap()
                 } else if booleans.contains(&current_word.as_str()) {
-                    egui::Color32::from_hex("#9eccf5").unwrap() // Cyan-Blue for booleans
+                    egui::Color32::from_hex("#9eccf5").unwrap()
                 } else if keywords.contains(&current_word.as_str()) {
-                    egui::Color32::from_hex("#ff757f").unwrap() // Default Pink for core keywords
+                    egui::Color32::from_hex("#ff757f").unwrap()
                 } else if builtin_functions.contains(&current_word.as_str()) {
                     egui::Color32::from_hex("#00ffff").unwrap()
                 } else if current_word.chars().next().unwrap().is_numeric() {
