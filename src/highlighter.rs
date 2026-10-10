@@ -10,30 +10,40 @@ pub fn highlight_code(ctx: &egui::Context, code: &str, lang: &str, plain_color_h
         return job;
     }
 
+    let control_flow = ["while", "for", "loop", "if", "else", "match", "case", "elif", "switch", "break", "continue"];
+    let booleans = ["true", "false", "True", "False"];
+
     let keywords = match lang {
         "Rust" => vec![
-            "fn", "let", "mut", "match", "struct", "enum", "pub", "use", "mod", 
-            "true", "false", "impl", "return", "if", "else", "for", "in", "while",
-            "loop", "break", "continue", "as", "async", "await", "const", "static",
-            "type", "where", "trait", "dyn", "unsafe", "move", "crate", "self", "Self"
+            "fn", "let", "mut", "struct", "enum", "pub", "use", "mod", 
+            "impl", "return", "as", "async", "await", "const", "static", "type", "where", 
+            "trait", "dyn", "unsafe", "move", "crate", "self", "Self", "ref", 
+            "extern", "macro", "super", "yield"
         ],
         "Python" => vec![
-            "def", "import", "from", "as", "return", "if", "elif", "else", 
-            "for", "while", "in", "is", "not", "and", "or", "True", "False", "pass",
-            "try", "except", "finally", "raise", "assert", "class", "with", "lambda", "global"
+            "None", "and", "as", "assert", "async", "await", "class", "def", "del", 
+            "except", "finally", "from", "global", "import", "in", "is", 
+            "lambda", "nonlocal", "not", "or", "pass", "raise", "return", "try", 
+            "with", "yield"
         ],
         "C++" => vec![
-            "int", "char", "float", "double", "void", "if", "else", "for", "while",
-            "switch", "case", "return", "class", "public", "private", "namespace", "include",
-            "std", "cout", "cin", "endl", "using", "template", "typename", "bool", "true", "false"
+            "auto", "catch", "class", "const", "consteval", 
+            "constexpr", "constinit", "co_await", "co_return", "co_yield", 
+            "decltype", "default", "delete", "do", "enum", "explicit", 
+            "export", "extern", "friend", "goto", "inline", "mutable", 
+            "namespace", "new", "noexcept", "operator", "private", "protected", 
+            "public", "register", "reinterpret_cast", "requires", "return", "sizeof", 
+            "static", "static_assert", "static_cast", "struct", "template", 
+            "this", "thread_local", "throw", "try", "typedef", "typeid", "typename", 
+            "union", "using", "virtual", "void", "volatile"
         ],
-        _ => vec![],
+        _ => vec!["and", "or", "not"],
     };
 
     let builtin_functions = match lang {
         "Rust" => vec!["println!", "print!", "format!", "vec!", "panic!", "assert_eq!", "unreachable!"],
         "Python" => vec!["print", "len", "range", "str", "int", "float", "list", "dict", "set", "open", "type", "append"],
-        "C++" => vec!["vector", "string", "map", "set", "push_back", "size", "length", "main"],
+        "C++" => vec!["vector", "string", "map", "set", "push_back", "size", "length", "main", "cout", "cin", "endl"],
         _ => vec![],
     };
 
@@ -63,12 +73,16 @@ pub fn highlight_code(ctx: &egui::Context, code: &str, lang: &str, plain_color_h
             current_word.push(ch);
         } else {
             if !current_word.is_empty() {
-                let color = if keywords.contains(&current_word.as_str()) {
-                    egui::Color32::from_hex("#ff757f").unwrap() // Розовый для ключевых слов
+                let color = if control_flow.contains(&current_word.as_str()) {
+                    egui::Color32::from_hex("#aa75ad").unwrap() // Purple for loops & control flow
+                } else if booleans.contains(&current_word.as_str()) {
+                    egui::Color32::from_hex("#9eccf5").unwrap() // Cyan-Blue for booleans
+                } else if keywords.contains(&current_word.as_str()) {
+                    egui::Color32::from_hex("#ff757f").unwrap() // Default Pink for core keywords
                 } else if builtin_functions.contains(&current_word.as_str()) {
-                    egui::Color32::from_hex("#00ffff").unwrap() // Циановый для встроенных функций
+                    egui::Color32::from_hex("#00ffff").unwrap()
                 } else if current_word.chars().next().unwrap().is_numeric() {
-                    egui::Color32::from_hex("#ff966c").unwrap() // Оранжевый для чисел
+                    egui::Color32::from_hex("#ff966c").unwrap()
                 } else {
                     base_color
                 };
@@ -85,7 +99,16 @@ pub fn highlight_code(ctx: &egui::Context, code: &str, lang: &str, plain_color_h
         }
     }
     if !current_word.is_empty() {
-        job.append(&current_word, 0.0, egui::TextFormat { font_id: font_id.clone(), color: base_color, ..Default::default() });
+        let color = if control_flow.contains(&current_word.as_str()) {
+            egui::Color32::from_hex("#aa75ad").unwrap()
+        } else if booleans.contains(&current_word.as_str()) {
+            egui::Color32::from_hex("#9eccf5").unwrap()
+        } else if keywords.contains(&current_word.as_str()) {
+            egui::Color32::from_hex("#ff757f").unwrap()
+        } else {
+            base_color
+        };
+        job.append(&current_word, 0.0, egui::TextFormat { font_id: font_id.clone(), color, ..Default::default() });
     }
     job
 }
