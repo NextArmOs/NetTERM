@@ -11,20 +11,27 @@ FEATURES
 download NetTERM in releases on github
 
 
-## Project Roadmap (v0.4.0 → v1.0.0 → ???)
+## Project Roadmap (v0.5.0 → v1.0.0 → ???)
 
 Track the development progress of NetTERM. You can check the boxes below as milestones are achieved!
 
 ### v0.5.0
 - [x] Create core multi-tab engine architecture
-- [ ] Remove top tab bar menu buttons entirely to clean up the screen
-- [ ] Implement persistent bottom command input prompt bar
-- [ ] Add basic for `:editor` (switch to code panel)
-- [ ] Add command for `:ping <target_ip>` (switch to net panel)
-- [ ] Add command for `:fetch` (switch to system telemetry)
-- [ ] Add command for `:calc <expression>` (switch to calculator)
-- [ ] Add `:help` command
+- [x] Remove top tab bar menu buttons entirely to clean up the screen
+- [x] Implement persistent bottom command input prompt bar
+- [x] Add basic for `:editor` (switch to code panel)
+- [x] Add command for `:fetch` (switch to system telemetry)
+- [x] Add command for `:calc <expression>` (switch to calculator)
+- [x] Add `:help` command
 ### v0.6.0 - v0.7.0
-- [ ] Reduce app memory usage and cpu load
+- [x] Reduce app memory usage and cpu load
       
-
+### Available System Commands: - v0.5.0
+  :editor  or  :edit     ->  Switch to the primary Code Editing panel
+  :terminal or :net      ->  Open Network Diagnostics logs
+  :canvas   or :paint    ->  Open the multi-color mouse drawing canvas
+  :fetch                 ->  Trigger local fastfetch telemetry directly
+  :calc <expression>     ->  Instantly solve formulas (e.g. :calc 5+(2*3))
+  :ping <target_ip>      ->  Execute a live network ICMP diagnostic query
+  :settings or :config   ->  Open settings
+  :help                  ->  Display this list
