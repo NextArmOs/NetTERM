@@ -1,1 +1,3 @@
-
+bg_color = "#131428"
+transparent = true
+syntax_lang = "Rust"
