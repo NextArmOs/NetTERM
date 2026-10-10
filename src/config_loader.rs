@@ -5,6 +5,7 @@ use std::fs;
 pub struct AppConfig {
     pub bg_color: String,
     pub transparent: bool,
+    pub syntax_lang: String,
 }
 
 impl Default for AppConfig {
@@ -12,6 +13,7 @@ impl Default for AppConfig {
         Self {
             bg_color: "#131428".to_string(),
             transparent: false,
+            syntax_lang: "Rust".to_string(),
         }
     }
 }
