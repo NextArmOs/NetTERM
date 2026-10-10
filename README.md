@@ -27,11 +27,11 @@ Track the development progress of NetTERM. You can check the boxes below as mile
 - [x] Reduce app memory usage and cpu load
       
 ### Available System Commands: - v0.5.0
-  :editor  or  :edit     ->  Switch to the primary Code Editing panel
-  :terminal or :net      ->  Open Network Diagnostics logs
-  :canvas   or :paint    ->  Open the multi-color mouse drawing canvas
-  :fetch                 ->  Trigger local fastfetch telemetry directly
-  :calc <expression>     ->  Instantly solve formulas (e.g. :calc 5+(2*3))
-  :ping <target_ip>      ->  Execute a live network ICMP diagnostic query
-  :settings or :config   ->  Open settings
-  :help                  ->  Display this list
+  - :editor  or  :edit     ->  Switch to the primary Code Editing panel
+  - :terminal or :net      ->  Open Network Diagnostics logs
+  - :canvas   or :paint    ->  Open the multi-color mouse drawing canvas
+  - :fetch                 ->  Trigger local fastfetch telemetry directly
+  -  :calc <expression>     ->  Instantly solve formulas (e.g. :calc 5+(2*3))
+  -  :ping <target_ip>      ->  Execute a live network ICMP diagnostic query
+  -  :settings or :config   ->  Open settings
+  -  :help                  ->  Display this list
