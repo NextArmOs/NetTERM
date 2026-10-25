@@ -36,5 +36,10 @@ Track the development progress of NetTERM. You can check the boxes below as mile
   -  :settings or :config   ->  Open settings
   -  :help                  ->  Display this list
   -  :nothingUI             ->  Desktop Environment
+ 
+  
+  
+## NothingUI v0.0.2
+fast desktop environment for NetTERM. 
 
 
