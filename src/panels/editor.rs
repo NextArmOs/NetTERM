@@ -79,7 +79,7 @@ pub fn show(
                 ctx.debug_painter().text(
                     egui::pos2(center_x, center_y - 45.0),
                     egui::Align2::CENTER_CENTER,
-                    "NetTERM v0.5.0",
+                    "NetTERM v0.6.0",
                     egui::FontId::new(20.0, egui::FontFamily::Proportional),
                     egui::Color32::from_gray(140)
                 );
