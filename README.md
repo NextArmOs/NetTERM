@@ -1,6 +1,20 @@
-NetTERM
+# 📊 NetTERM Package Ecosystem Progress 
 
-A fast, lightweight, and modern **Code Editor** and **Network Utility Terminal** **With its own PKGS** written in pure Rust using the **egui** native graphical engine. Perfectly optimized for Linux window managers like Hyprland and Niri. With NothingUI Desktop Environment.
+Target Milestone: **400 System Packages**  
+Current Status: **12 / 400 Implemented** [▓░░░░░░░░░░░░░░░░░░░] 3%
+
+## Core Categories Status
+
+| Category | Implemented | Target | Completion | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **System Utilities** | 5 | 150 | 3.3% | 🟢 Stable |
+| **Tools** | 4 | 100 | 4.0% | 🟡 In Progress |
+| **Graphical Apps & Games** | 3 | 100 | 3.0% | 🟡 In Progress |
+| **Other Apps** | 0 | 50 | 0.0% | 🔴 Planned |
+| **TOTAL** | **12** | **400** | **3.0%** |  |
+
+
+Fast, lightweight, and modern **Code Editor** and **Network Utility Terminal** **With its own PKGS** written in pure Rust using the **egui** native graphical engine. Perfectly optimized for Linux window managers like Hyprland and Niri. With NothingUI Desktop Environment.
 
 FEATURES
 - **Real-time counter for Lines**, Characters, and dynamic file size conversion (Bytes / KB / MB).
