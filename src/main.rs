@@ -68,7 +68,7 @@ fn main() -> eframe::Result<()> {
     let mut active_syntax_lang = String::from("Rust");
     let mut session_plain_color = String::from("#e4e1e9");
 
-    eframe::run_simple_native("NetTERM v0.6.0", options, move |ctx, _frame| {
+    eframe::run_simple_native("NetTERM v4.0.0", options, move |ctx, _frame| {
         ctx.request_repaint_after(std::time::Duration::from_secs(1));
 
         let current_lang = active_syntax_lang.clone();
