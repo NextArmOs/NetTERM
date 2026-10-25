@@ -3,7 +3,7 @@
 Target Milestone: **400 System Packages**  
 Current Status: **12 / 400 Implemented** [▓░░░░░░░░░░░░░░░░░░░] 3%
 
-## Core Categories Status
+## NetTERM Progress
 
 | Category | Implemented | Target | Completion | Status |
 | :--- | :--- | :--- | :--- | :--- |
