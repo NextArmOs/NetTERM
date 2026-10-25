@@ -1,11 +1,13 @@
 mod network;
 mod highlighter;
 mod calculator;
-mod nettermpkgs;
 mod netterm_pkgs;
-mod nothing_ui;
+
+#[path = "panels/NetTERM_PKGS"]
+mod panels;
 
 use eframe::egui;
+
 
 #[derive(PartialEq, Clone, Copy)]
 pub enum Tab {
@@ -111,6 +113,7 @@ fn main() -> eframe::Result<()> {
                             ":calculator" => { current_tab = Tab::Calculator; command_feedback = "Opened full screen calculator view.".to_string(); }
                             ":fetch" => { current_tab = Tab::Fetch; fetch_output = network::get_fastfetch_output(); command_feedback = "Executed system fetch.".to_string(); }
                             ":netpkgs" | ":pkgs" => { current_tab = Tab::Packages; command_feedback = "Opened NetTERM_PKGS Package Repository Manager.".to_string(); }
+                            ":nothingUI" => { current_tab = Tab::NothingUI; command_feedback = "Switched to nothingUI Window Manager.".to_string(); }
                             ":q" | ":exit" => { ctx.send_viewport_cmd(egui::ViewportCommand::Close); }
                             ":ping" => {
                                 current_tab = Tab::NetworkTerminal;
@@ -158,38 +161,37 @@ fn main() -> eframe::Result<()> {
             });
         });
 
-        egui::CentralPanel::default()
-            .frame(egui::Frame::none().fill(final_color))
-            .show(ctx, |ui| {
-                match current_tab {
-                    Tab::CodeEditor => nettermpkgs::editor::show(
-                        ui, 
-                        ctx, 
-                        &mut code_text, 
-                        &current_lang, 
-                        &current_plain_color, 
-                        format_number as fn(usize) -> String, 
-                        format_size as fn(usize) -> String
-                    ),
-                    Tab::NetworkTerminal => nettermpkgs::terminal::show(ui, &terminal_lines),
-                    Tab::Canvas => nettermpkgs::canvas::show(ui, &mut paint_lines, &mut current_brush_color),
-                    Tab::Fetch => nettermpkgs::fetch::show(ui, &fetch_output),
-                    Tab::Calculator => {
-                        let mut evaluate_clicked = false;
-                        nettermpkgs::calculator::show(ui, &mut calc_input, &calc_result, &mut evaluate_clicked);
-                        if evaluate_clicked {
-                    calc_result = match calculator::evaluate_expression(&calc_input) {
-                    Ok(res_str) => res_str,
-                    Err(err) => format!("Error: {}", err),
-            };
-        }
-    }
-            Tab::Settings => nettermpkgs::settings::show(ui, ctx, &mut active_syntax_lang, &mut session_plain_color),
-            Tab::Help => nettermpkgs::help::show(ui),
-            Tab::Packages => netterm_pkgs::show(ui),
-       }
-      }
-    );
-  }
- )
+    egui::CentralPanel::default()
+        .frame(egui::Frame::none().fill(final_color))
+        .show(ctx, |ui| {
+            match current_tab {
+                Tab::CodeEditor => panels::editor::show(
+                    ui, 
+                    ctx, 
+                    &mut code_text, 
+                    &current_lang, 
+                    &current_plain_color, 
+                    format_number as fn(usize) -> String, 
+                    format_size as fn(usize) -> String
+                ),
+                Tab::NetworkTerminal => panels::terminal::show(ui, &terminal_lines),
+                Tab::Canvas => panels::canvas::show(ui, &mut paint_lines, &mut current_brush_color),
+                Tab::Fetch => panels::fetch::show(ui, &fetch_output),
+                Tab::Calculator => {
+                    let mut evaluate_clicked = false;
+                    panels::calculator::show(ui, &mut calc_input, &calc_result, &mut evaluate_clicked);
+                    if evaluate_clicked {
+                        calc_result = match calculator::evaluate_expression(&calc_input) {
+                            Ok(res_str) => res_str,
+                            Err(err) => format!("Error: {}", err),
+                        };
+                    }
+                }
+                Tab::Settings => panels::settings::show(ui, ctx, &mut active_syntax_lang, &mut session_plain_color),
+                Tab::Help => panels::help::show(ui),
+                Tab::Packages => netterm_pkgs::show(ui),
+                Tab::NothingUI => panels::nothing_ui::show(ui), 
+            }
+        });
+    })
 }
