@@ -16,6 +16,7 @@ pub enum Tab {
     Settings,
     Help,
     Packages,
+    NothingUI,
 }
 
 pub struct PaintLine {
