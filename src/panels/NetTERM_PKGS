@@ -5,3 +5,4 @@ pub mod fetch;
 pub mod calculator;
 pub mod settings;
 pub mod help;
+pub mod nothing_ui;
