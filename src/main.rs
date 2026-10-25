@@ -3,6 +3,7 @@ mod highlighter;
 mod calculator;
 mod nettermpkgs;
 mod netterm_pkgs;
+mod nothing_ui;
 
 use eframe::egui;
 
