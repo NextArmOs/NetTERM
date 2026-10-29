@@ -45,11 +45,11 @@ NetTERM and NothingUI are designed to be ultra-fast, minimal, and keyboard-drive
   * Future-proofing the ecosystem for open-source hardware architectures.
 
 ### Android
-- [ ] **Android ARM64 (AArch64)** — **Planned** 🔴
+- [ ] **Android ARM64 (AArch64)** — **Planned**
   * Exploring compatibility for terminal environments (e.g., Termux integrations) or native mobile shells.
 
 ### macOS
-- [ ] **macOS ARM64 (Apple M-Series)** — **Not Supported / Investigating** ❌
+- [ ] **macOS ARM64 (Apple M-Series)** — **Not Supported / Investigating**
   * *Current Status:* Testing fails due to Os restrictions. (Still Works in VisualStudioCode With cargo run)
 
 ---
@@ -60,7 +60,7 @@ You can start using NetTERM either by downloading a pre-built binary or compilin
 
 ### Option 1: Quick Start (Pre-built Binaries)
 The easiest way is to download the ready-to-run compiled version for your system:
-1. Go to the [Releases](https://github.com/NextArmOs/NetTerm) page on GitHub.
+1. Go to the [Releases](https://github.com/NextArmOs/NetTERM/releases) page on GitHub.
 2. Download the latest asset for your architecture.
 3. Grant execution permissions and run it.
 
