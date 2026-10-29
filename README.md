@@ -50,7 +50,7 @@ NetTERM and NothingUI are designed to be ultra-fast, minimal, and keyboard-drive
 
 ### macOS
 - [ ] **macOS ARM64 (Apple M-Series)** — **Not Supported / Investigating**
-  * *Current Status:* Testing fails due to Os restrictions. (Still Works in VisualStudioCode With cargo run)
+  * *Current Status:* Testing fails due to MacOS restrictions. (Still Works in VisualStudioCode With cargo run)
 
 ---
 
@@ -84,10 +84,10 @@ We welcome community feedback, especially regarding cross-platform compatibility
 
 | Goal | How to Help / What to Do | Where to Go |
 | :--- | :--- | :--- |
-| **Bug Reporting** | Open an issue with your system specs (OS, WM, Rust version) and steps to reproduce. | [Open an Issue](https://github.com/) |
-| **macOS / ARM64 Testing** | If you manage to compile or trace crashes on Apple Silicon or ARM64 Linux, please share your logs! | [Open an Issue / PR](https://github.com/) |
-| **Adding Packages** | Help us reach our 400-package milestone by contributing new scripts or tools to **PKGS**. | [Submit a PR](https://github.com/NextArmOs) |
-| **Feature Requests** | Suggest new built-in commands or UI improvements for NothingUI. | [Discussions / Issues](https://github.com) |
+| **Bug Reporting** | Open an issue with your system specs (OS, WM, Rust version) and steps to reproduce. | [Open an Issue](https://github.com/NextArmOs/NetTERM/pulls) |
+| **macOS / ARM64 Testing** | If you manage to compile or trace crashes on Apple Silicon or ARM64 Linux, please share your logs! | [Open an Issue / PR](https://github.com/NextArmOs/NetTERM/pulls) |
+| **Adding Packages** | Help us reach our 400-package milestone by contributing new scripts or tools to **PKGS**. | [Submit a PR](https://github.com/NextArmOs/NetTERM/pulls) |
+| **Feature Requests** | Suggest new built-in commands or UI improvements for NothingUI. | [Discussions / Issues](https://github.com/NextArmOs/NetTERM/issues) |
 
 ---
 
