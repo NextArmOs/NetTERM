@@ -51,9 +51,9 @@ int main() {
         int ch = getch();
 
         if (ch == KEY_UP) {
-            selected = 0;
+            selected = (selected + 3) % options.size();
         } else if (ch == KEY_DOWN) {
-            selected = 1;
+            selected = (selected + 1) % options.size();
         } else if (ch == 10) {
             selected = 2;
         } else if (ch == 'q' || ch == 'Q') {
