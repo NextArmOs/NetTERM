@@ -1,89 +1,101 @@
 #include "main.h"
-#include <iostream>
-#include <string>
-#include <vector>
-#include <ncurses.h>
+#include <thread>
 
-void drawMenu(const std::vector<std::string>& options, int selected) {
-    clear();
-    int y = 10;
-    for (size_t i = 0; i < options.size(); ++i) {
-        if (i == selected) {
-            attron(A_REVERSE);
-        }
-        mvprintw(y, 10, options[i].c_str());
-        attroff(A_REVERSE);
-        ++y;
-    }
-    refresh();
-}
+std::atomic<bool> g_running(true);
+std::chrono::high_resolution_clock::time_point g_start_time;
+std::mutex g_screen_mutex;
 
-int getUserChoice(const std::vector<std::string>& options) {
-    int ch;
-    while (true) {
-        drawMenu(options, 0);
-        ch = getch();
-        if (ch == KEY_UP) {
-            return 1;
-        } else if (ch == KEY_DOWN) {
-            return 2;
-        } else if (ch == 10) {
-            return 3;
-        } else if (ch == 'q' || ch == 'Q') {
-            return 4;
+void inputThreadLoop() {
+    std::string current_cmd = "";
+    
+    while (g_running) {
+        {
+            std::lock_guard<std::mutex> lock(g_screen_mutex);
+            move(LINES - 1, 0);
+            clrtoeol();
+            attron(COLOR_PAIR(1));
+            printw("root ~> ");
+            attroff(COLOR_PAIR(1));
+            attron(COLOR_PAIR(2));
+            printw("%s", current_cmd.c_str());
+            attroff(COLOR_PAIR(2));
+            curs_set(1);
+            refresh();
         }
-        std::cout << "Invalid choice. Please try again." << std::endl;
+
+        
+        int ch = wgetch(stdscr);
+        
+        if (ch != ERR) {
+            if (ch == '\n' || ch == '\r') {
+                processCommand(current_cmd);
+                current_cmd = "";
+            } 
+            else if (ch == KEY_BACKSPACE || ch == 127 || ch == 8) {
+                if (!current_cmd.empty()) {
+                    current_cmd.pop_back();
+                }
+            } 
+            else if (ch >= 32 && ch <= 126) {
+                current_cmd += static_cast<char>(ch);
+            }
+        }
+        
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 }
 
 int main() {
+    g_start_time = std::chrono::high_resolution_clock::now();
+
     initscr();
+    start_color();
     cbreak();
     noecho();
     keypad(stdscr, TRUE);
-    mousemask(BUTTON1_CLICKED, NULL);
+    nodelay(stdscr, TRUE);
 
-    std::vector<std::string> options = {"Option 1", "Option 2", "Option 3", "Exit"};
-    int selected = 0;
+    
+    init_pair(1, COLOR_GREEN, COLOR_BLACK);
+    init_pair(2, COLOR_WHITE, COLOR_BLACK);
+    init_pair(3, COLOR_CYAN, COLOR_BLACK);
+    init_pair(4, COLOR_WHITE, COLOR_BLACK);
 
-    while (true) {
-        drawMenu(options, selected);
-        int ch = getch();
+    bkgd(COLOR_PAIR(4));
 
-        if (ch == KEY_UP) {
-            selected = (selected + 3) % options.size();
-        } else if (ch == KEY_DOWN) {
-            selected = (selected + 1) % options.size();
-        } else if (ch == 10) {
-            selected = 2;
-        } else if (ch == 'q' || ch == 'Q') {
-            selected = 3;
+    auto const frame_duration = std::chrono::milliseconds(33);
+
+    std::thread input_thread(inputThreadLoop);
+
+    while (g_running) {
+        auto frame_start = std::chrono::high_resolution_clock::now();
+
+        {
+            std::lock_guard<std::mutex> lock(g_screen_mutex);
+            attron(COLOR_PAIR(3));
+            mvprintw(0, 1, "NetTERM System Shell Runtime v4.0.3");
+            attroff(COLOR_PAIR(3));
+            mvhline(1, 0, ACS_HLINE, COLS);
         }
 
-        if (selected == 2) {
-            mousemask(BUTTON1_CLICKED, NULL);
-            int mouse_x, mouse_y;
-            MEVENT event;
-            while (getmouse(&event) == OK) {
-                mouse_x = event.x;
-                mouse_y = event.y;
-                if (mouse_y == 12) {
-                    selected = 0;
-                } else if (mouse_y == 14) {
-                    selected = 1;
-                } else if (mouse_y == 16) {
-                    selected = 2;
-                } else if (mouse_y == 18) {
-                    selected = 3;
-                }
-            }
-            mousemask(BUTTON1_CLICKED, NULL);
+        drawUptime();
+
+        {
+            std::lock_guard<std::mutex> lock(g_screen_mutex);
+            refresh();
         }
 
-        if (selected == 3) {
-            endwin();
-            return 0;
+        auto frame_end = std::chrono::high_resolution_clock::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(frame_end - frame_start);
+
+        if (elapsed < frame_duration) {
+            std::this_thread::sleep_for(frame_duration - elapsed);
         }
+    }
+
+    g_running = false;
+    if (input_thread.joinable()) {
+        input_thread.join();
     }
 
     endwin();
