@@ -27,6 +27,11 @@ struct CPUStats {
     unsigned long long user = 0, nice = 0, system = 0, idle = 0, iowait = 0, irq = 0, softirq = 0, steal = 0;
 };
 
+struct NetStats {
+    unsigned long long rxBytes = 0;
+    unsigned long long txBytes = 0;
+};
+
 void cleanup(int) {
     std::cout << RESET << "\033[?25h\033[?1049l" << std::flush;
     std::exit(0);
@@ -57,6 +62,40 @@ double calculateCPUUsage(const CPUStats& prev, const CPUStats& curr) {
     double idled = static_cast<double>(currIdle - prevIdle);
     if (totald == 0) return 0.0;
     return (totald - idled) / totald * 100.0;
+}
+
+NetStats readNetStats() {
+    std::ifstream file("/proc/net/dev");
+    std::string line;
+    NetStats total;
+    std::getline(file, line);
+    std::getline(file, line);
+    while (std::getline(file, line)) {
+        size_t colon = line.find(':');
+        if (colon == std::string::npos) continue;
+        std::string iface = line.substr(0, colon);
+        iface.erase(0, iface.find_first_not_of(" \t"));
+        if (iface == "lo") continue;
+
+        std::istringstream ss(line.substr(colon + 1));
+        unsigned long long rx, rPackets, rErrs, rDrop, rFifo, rFrame, rComp, rMulti;
+        unsigned long long tx;
+        ss >> rx >> rPackets >> rErrs >> rDrop >> rFifo >> rFrame >> rComp >> rMulti >> tx;
+        total.rxBytes += rx;
+        total.txBytes += tx;
+    }
+    return total;
+}
+
+std::string formatSpeed(double bytesPerSec) {
+    std::ostringstream ss;
+    ss << std::fixed << std::setprecision(1);
+    if (bytesPerSec >= 1024.0 * 1024.0) {
+        ss << (bytesPerSec / (1024.0 * 1024.0)) << " MB/s";
+    } else {
+        ss << (bytesPerSec / 1024.0) << " KB/s";
+    }
+    return ss.str();
 }
 
 std::string getCPUModel() {
@@ -126,8 +165,9 @@ void drawBarRow(const std::string& label, double percentage, const std::string& 
     std::string pctStr = pctStream.str();
 
     int innerWidth = BOX_WIDTH - 4;
-    int usedLen = static_cast<int>(label.length()) + barWidth + static_cast<int>(pctStr.length()) + 2;
-    int spaces = innerWidth - usedLen;
+    int labelLen = static_cast<int>(label.length());
+    int pctLen = static_cast<int>(pctStr.length());
+    int spaces = innerWidth - labelLen - barWidth - 1 - pctLen;
     if (spaces < 1) spaces = 1;
 
     std::cout << BG << BORDER << "│ " << ACCENT << label << std::string(spaces, ' ') << barColor;
@@ -154,7 +194,7 @@ void renderSystem() {
     drawBoxTop("SYSTEM");
     if (uname(&buffer) == 0) {
         drawRow("Kernel", buffer.release);
-        drawRow("Architecture", buffer.machine);
+        drawRow("Arch", buffer.machine);
     }
     drawRow("Uptime", uptimeStr, GREEN);
     drawBoxBottom();
@@ -235,28 +275,36 @@ void renderDisk(const std::string& path, const std::string& title) {
     drawBoxBottom();
 }
 
+void renderNetwork(double rxSpeed, double txSpeed) {
+    drawBoxTop("NETWORK");
+    drawRow("Download (RX)", formatSpeed(rxSpeed), GREEN);
+    drawRow("Upload   (TX)", formatSpeed(txSpeed), YELLOW);
+    drawBoxBottom();
+}
+
 int main() {
     std::signal(SIGINT, cleanup);
-    std::cout << "\033[?1049h\033[?25l" << BG << "\033[2J";
-
-    std::string cpuModel = getCPUModel();
-    CPUStats prevStats = readCPUStats();
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
-
-    while (true) {
-        CPUStats currStats = readCPUStats();
-        double cpuUsage = calculateCPUUsage(prevStats, currStats);
-        prevStats = currStats;
-
-        std::cout << "\033[H";
-        renderSystem();
-        renderCPU(cpuModel, cpuUsage);
-        renderMemory();
-        renderDisk("/", "Root");
-        std::cout << BG << MUTED << " Press Ctrl+C to exit\033[K\033[J" << std::flush;
-
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
-
-    return 0;
+std::cout << "\033[?1049h\033[?25l" << BG << "\033[2J";
+std::string cpuModel = getCPUModel();
+CPUStats prevStats = readCPUStats();
+NetStats prevNet = readNetStats();
+std::this_thread::sleep_for(std::chrono::milliseconds(200));
+while (true) {
+CPUStats currStats = readCPUStats();
+    double cpuUsage = calculateCPUUsage(prevStats, currStats);
+    prevStats = currStats;
+        NetStats currNet = readNetStats();
+        double rxSpeed = static_cast<double>(currNet.rxBytes - prevNet.rxBytes);
+        double txSpeed = static_cast<double>(currNet.txBytes - prevNet.txBytes);
+        prevNet = currNet;
+std::cout << "\033[H";
+renderSystem();
+renderCPU(cpuModel, cpuUsage);
+renderMemory();
+renderDisk("/", "Root");
+renderNetwork(rxSpeed, txSpeed);
+std::cout << BG << MUTED << " Press Ctrl+C to exit\033[K\033[J" << std::flush;
+std::this_thread::sleep_for(std::chrono::seconds(1));
+}
+return 0;
 }
